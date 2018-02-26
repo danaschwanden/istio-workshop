@@ -105,7 +105,9 @@ To create a new cluster that meets these requirements, including alpha features,
 
 Setup Kubernetes CLI Content:
 
-```gcloud container clusters get-credentials hello-istio --zone us-west1-b --project PROJECT_ID```
+```export PROJECT_ID=$(gcloud info --format='value(config.project)')```
+
+```gcloud container clusters get-credentials hello-istio --zone us-west1-b --project $PROJECT_ID```
 
 Now, grant cluster admin permissions to the current user. You need these permissions to create the necessary RBAC rules for Istio.
 
@@ -503,7 +505,7 @@ git clone https://github.com/srinandan/istio-workshop.git && cd istio-workshop/m
 
 2. Set the PROJECT_ID as the environment variable
 ```
-export PROJECT_ID=test
+export PROJECT_ID=$(gcloud info --format='value(config.project)')
 ```
 
 3. Edit the Kubernetes configuration file (mtlstest.yaml) and add the PROJECT_ID
@@ -547,7 +549,7 @@ NOTE: The cluster IP for the **details** app. This app is running on port 9080
 
 7. Access the mtltest pod
 ```
-kubectl exec -it mtlstest-bbf7bd6c-9rmwn /bin/bash
+kubectl exec -it $(kubectl -n istio-system get pod -l app=mtlstest -o jsonpath='{.items[0].metadata.name}') /bin/bash
 ```
 
 8. Run cURL to access to the details app
@@ -580,9 +582,9 @@ kubectl get secret istio.default -o jsonpath='{.data.key\.pem}' | base64 --decod
 
 2. Copy the files to the mtlstest POD
 ```
-kubectl cp root-cert.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
-kubectl cp cert-chain.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
-kubectl cp key.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
+kubectl cp root-cert.pem $(kubectl -n istio-system get pod -l app=mtlstest -o jsonpath='{.items[0].metadata.name}'):/tmp -c mtlstest
+kubectl cp cert-chain.pem $(kubectl -n istio-system get pod -l app=mtlstest -o jsonpath='{.items[0].metadata.name}'):/tmp -c mtlstest
+kubectl cp key.pem $(kubectl -n istio-system get pod -l app=mtlstest -o jsonpath='{.items[0].metadata.name}'):/tmp -c mtlstest
 ```
 
 3. Start a bash to the mtlstest POD
@@ -747,7 +749,7 @@ For the current release, uninstalling Istio core components also deletes the RBA
 
 In addition to uninstalling Istio, you should also delete the Kubernetes cluster created in the setup phase (to save on cost and to be a good cloud citizen):
 
-```gcloud container clusters delete hello-istio``` 
+```gcloud container clusters delete hello-istio --zone=us-west1-b``` 
 
 OUTPUT
 ```
