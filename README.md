@@ -398,6 +398,11 @@ This task shows you how to setup and use the Istio Dashboard to monitor mesh tra
 
 First, install the Prometheus addon :
 
+```
+curl https://raw.githubusercontent.com/danaschwanden/istio-workshop/master/prometheus.patch -o prometheus.patch
+patch install/kubernetes/addons/prometheus.yaml prometheus.patch
+```
+
 ```kubectl apply -f install/kubernetes/addons/prometheus.yaml```
 
 Istio is now configured to send monitoring information to Prometheus.
